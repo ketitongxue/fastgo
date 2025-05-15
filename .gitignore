@@ -13,4 +13,4 @@ go.work.sum
 /_output
 
 # gGoland 缓存文件
-git rm --cached
+.idea
