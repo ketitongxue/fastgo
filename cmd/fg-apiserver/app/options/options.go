@@ -1,6 +1,10 @@
 package options
 
 import (
+	"fmt"
+	"net"
+	"strconv"
+	
 	"github.com/ketitongxue/fastgo/internal/apiserver"
 	genericoptions "github.com/ketitongxue/fastgo/pkg/options"
 )
@@ -19,6 +23,7 @@ func NewConfigFrom() *ConfigFrom {
 type ServerOptions struct {
 	ConfigFrom   *ConfigFrom                  `json:"config" mapstructure:"config"`
 	MySQLOptions *genericoptions.MySQLOptions `json:"mysql" mapstructure:"mysql"`
+	Addr         string                       `json:"addr" mapstructure:"addr"`
 }
 
 // NewServerOptions 创建带有默认值的 ServerOptions 实例.
@@ -26,6 +31,7 @@ func NewServerOptions() *ServerOptions {
 	return &ServerOptions{
 		ConfigFrom:   NewConfigFrom(),
 		MySQLOptions: genericoptions.NewMySQLOptions(),
+        Addr:         "0.0.0.0:6666",
 	}
 }
 
@@ -36,6 +42,23 @@ func (o *ServerOptions) Validate() error {
 		return err
 	}
 
+    // 验证服务器地址
+    if o.Addr == "" {
+        return fmt.Errorf("server address cannot be empty")
+    }
+
+    // 检查地址格式是否为host:port
+    _, portStr, err := net.SplitHostPort(o.Addr)
+    if err != nil {
+        return fmt.Errorf("invalid server address format '%s': %w", o.Addr, err)
+    }
+
+    // 验证端口是否为数字且在有效范围内
+    port, err := strconv.Atoi(portStr)
+    if err != nil || port < 1 || port > 65535 {
+        return fmt.Errorf("invalid server port: %s", portStr)
+    }
+
 	return nil
 }
 
@@ -43,5 +66,6 @@ func (o *ServerOptions) Validate() error {
 func (o *ServerOptions) Config() (*apiserver.Config, error) {
 	return &apiserver.Config{
 		MySQLOptions: o.MySQLOptions,
+        Addr:         o.Addr,
 	}, nil
 }

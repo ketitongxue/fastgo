@@ -18,3 +18,9 @@ mysql:
   max-open-connections: 100
   # 空闲连接最大存活时间，默认 10s
   max-connection-life-time: 10s
+
+# log 配置
+log:
+  format: text
+  level: info
+  output: /tmp/fg-apiserver.log 
