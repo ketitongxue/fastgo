@@ -11,3 +11,6 @@ go.work.sum
 
 # 自定义文件
 /_output
+
+# gGoland 缓存文件
+git rm --cached
